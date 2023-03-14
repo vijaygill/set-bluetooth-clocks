@@ -40,13 +40,13 @@ async def discover_clocks(args, clocks):
 
     await bluetooth_clocks.scanners.discover_clocks(on_clock_found, scan_duration)
 
-async def update_time(clock):
+async def update_time(args, clock):
     logger.info("Working on : {0} ({1})".format(clock.address, clock.name))
-    attempts_gettime = 5
-    attempts_settime = 15
-    diff_max = 30
+    attempts_gettime = args.attempts_gettime
+    attempts_settime = args.attempts_settime
+    diff_max = args.diff_tolerance
     needs_update = False
-    for attempt in range(attempts_gettime):
+    for attempt in range(1, attempts_gettime + 1):
         try:
             timestamp = await clock.get_time()
             time = datetime.fromtimestamp(timestamp)
@@ -65,7 +65,7 @@ async def update_time(clock):
             logger.error("Error while getting time in attempt {0} of {1}: {2}".format(attempt, attempts_gettime, e))
             pass
     if needs_update:
-        for attempt in range(attempts_settime):
+        for attempt in range(1, attempts_settime + 1):
             try:
                 now = datetime.now().timestamp()
                 await clock.set_time(now, False)
@@ -76,9 +76,9 @@ async def update_time(clock):
                 pass
 
 
-async def update_times(clocks):
+async def update_times(args, clocks):
     for clock in clocks:
-        await update_time(clock)
+        await update_time(args, clock)
 
 async def main(args):
     sleep_time_sec = args.loop_interval
@@ -87,7 +87,7 @@ async def main(args):
             clocks = []
             logger.info("Main loop started.")
             await discover_clocks(args, clocks)
-            await update_times(clocks)
+            await update_times(args,clocks)
             next_run_time = datetime.now() + timedelta(seconds = sleep_time_sec)
             logger.info("Main loop finished. Next run will be around: {0} ({1} seconds)".format(next_run_time.strftime("%Y-%m-%d %H:%M:%S"), sleep_time_sec))
             await asyncio.sleep(sleep_time_sec)
@@ -97,11 +97,17 @@ async def main(args):
 
 LOOP_INTERVAL_DEFAULT = 60 * 60 * 2 # 2 hours
 SCAN_DURATION_DEFAULT = 30
+DIFF_TOLERANCE_DEFAULT = 30
+ATTEMPTS_GETTIME_DEFAULT = 10
+ATTEMPTS_SETTIME_DEFAULT = 15
 
 if __name__ ==  '__main__':
     parser = argparse.ArgumentParser(description = "Utility to update date-time on all visible bluetooth clocks", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--loop-interval", default = os.getenv("LOOP_INTERVAL", LOOP_INTERVAL_DEFAULT), help="Time between runs of main loop, in seconds.", type = int)
     parser.add_argument("--scan-duration", default = os.getenv("SCAN_DURATION", SCAN_DURATION_DEFAULT), help="Scan duration per clock to listen and wait, in seconds.", type = int)
+    parser.add_argument("--diff-tolerance", default = os.getenv("DIFF_TOLERANCE", DIFF_TOLERANCE_DEFAULT), help="Maximum difference allowed in current time and clock time before update is performed, in seconds.", type = int)
+    parser.add_argument("--attempts-gettime", default = os.getenv("ATTEMPTS_GETTIME", ATTEMPTS_GETTIME_DEFAULT), help="Number of times attempts should be made to read time from clock.", type = int)
+    parser.add_argument("--attempts-settime", default = os.getenv("ATTEMPTS_SETTIME", ATTEMPTS_SETTIME_DEFAULT), help="Number of times attempts should be     made to set time on the clock.", type = int)
 
     args = parser.parse_args()
 

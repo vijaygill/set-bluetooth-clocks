@@ -12,8 +12,11 @@ services:
           - /run/dbus:/run/dbus:ro
           - /var/lib/bluetooth:/var/lib/bluetooth:ro
       environment:
-        - LOOP_INTERVAL=7200
+        #- LOOP_INTERVAL=7200
         - SCAN_DURATION=60
+        #- DIFF_TOLERANCE=30
+        #- ATTEMPTS_GETTIME=10
+        #- ATTEMPTS_SETTIME=15
       security_opt:
           - seccomp:unconfined
 
