@@ -18,7 +18,7 @@ The utility goes through a loop every 15 minutes (hard-coded) and does following
 I have a few raspberry pi's also running in my house. So I run the utility on all of those to ensure that the clocks are not missed. I have noticed that not every clock get discovered in a run of a loop.
 
 To do:
-* Remove hard-coded values and turn those into command-line parameters / environment variables.
+* ~~Remove hard-coded values and turn those into command-line parameters / environment variables.~~
 * Refactor the code to allow things run in parallel to reduce time taken per loop.
 
 
