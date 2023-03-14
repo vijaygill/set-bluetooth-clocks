@@ -1,0 +1,17 @@
+services:
+  set-bluetooth-clocks:
+      build:
+          dockerfile : Dockerfile
+          context: .
+      container_name: set-bluetooth-clocks
+      restart: unless-stopped
+      volumes:
+          - /etc/localtime:/etc/localtime:ro
+          - /etc/timezone:/etc/timezone:ro
+          - /tmp/docker/set-bluetooth-clocks/tmp:/tmp
+          - /run/dbus:/run/dbus:ro
+          - /var/lib/bluetooth:/var/lib/bluetooth:ro
+      security_opt:
+          - seccomp:unconfined
+
+
