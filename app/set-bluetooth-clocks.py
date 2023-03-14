@@ -1,13 +1,16 @@
 #!/usr/local/bin/python
 
+import os
 import asyncio
 import bluetooth_clocks
 import bluetooth_clocks.scanners
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import logging
 import colorlog
+
+import argparse
 
 logger = logging.getLogger(__name__)
 handler = colorlog.StreamHandler()
@@ -22,7 +25,7 @@ handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(asctime)s - %(mes
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
-async def discover_clocks(clocks):
+async def discover_clocks(args, clocks):
     def on_clock_found(clock):
         try:
             is_readable = clock.is_readable()
@@ -33,8 +36,9 @@ async def discover_clocks(clocks):
         except Exception as e:
             logger.error("Error: ".format(e))
             pass
+    scan_duration = args.scan_duration
 
-    await bluetooth_clocks.scanners.discover_clocks(on_clock_found, 60)
+    await bluetooth_clocks.scanners.discover_clocks(on_clock_found, scan_duration)
 
 async def update_time(clock):
     logger.info("Working on : {0} ({1})".format(clock.address, clock.name))
@@ -76,22 +80,33 @@ async def update_times(clocks):
     for clock in clocks:
         await update_time(clock)
 
-async def main():
-    sleep_time_sec = 60 * 15
+async def main(args):
+    sleep_time_sec = args.loop_interval
     while True:
         try:
             clocks = []
             logger.info("Main loop started.")
-            await discover_clocks(clocks)
+            await discover_clocks(args, clocks)
             await update_times(clocks)
-            logger.info("Main loop finished.")
+            next_run_time = datetime.now() + timedelta(seconds = sleep_time_sec)
+            logger.info("Main loop finished. Next run will be around: {0} ({1} seconds)".format(next_run_time.strftime("%Y-%m-%d %H:%M:%S"), sleep_time_sec))
             await asyncio.sleep(sleep_time_sec)
         except Exception as e:
             logger.error("Error in mail: {0}".format(e))
             pass
 
+LOOP_INTERVAL_DEFAULT = 60 * 60 * 2 # 2 hours
+SCAN_DURATION_DEFAULT = 30
 
 if __name__ ==  '__main__':
+    parser = argparse.ArgumentParser(description = "Utility to update date-time on all visible bluetooth clocks", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--loop-interval", default = os.getenv("LOOP_INTERVAL", LOOP_INTERVAL_DEFAULT), help="Time between runs of main loop, in seconds.", type = int)
+    parser.add_argument("--scan-duration", default = os.getenv("SCAN_DURATION", SCAN_DURATION_DEFAULT), help="Scan duration per clock to listen and wait, in seconds.", type = int)
+
+    args = parser.parse_args()
+
+    logger.info(' '.join(f'{k}={v}' for k, v in vars(args).items()))
+
     print("Set BlueTooth clocks application.")
-    asyncio.run(main())
+    asyncio.run(main(args))
 

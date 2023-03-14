@@ -11,6 +11,9 @@ services:
           - /tmp/docker/set-bluetooth-clocks/tmp:/tmp
           - /run/dbus:/run/dbus:ro
           - /var/lib/bluetooth:/var/lib/bluetooth:ro
+      environment:
+        - LOOP_INTERVAL=7200
+        - SCAN_DURATION=60
       security_opt:
           - seccomp:unconfined
 
