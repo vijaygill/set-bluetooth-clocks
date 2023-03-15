@@ -5,9 +5,7 @@ I have a bunch of Xiaomi LYWSD02 clocks which also act as temperature sensors fo
 
 The clocks keep losing track of time. So I wrote this little utility to update time.
 
-It is at a very initial stage and can be improved a lot, though it does the job I wanted it to do.
-
-So if you feel it is useful and you want to imrove it, please feel free to raise a PR!
+If you feel it is useful and you want to imrove it, please feel free to raise a PR!
 
 The utility goes through a loop every 15 minutes (hard-coded) and does following
 * Discovers all the bluetooth clocks and builds a list of clocks that allow reading (and possibly writing also. The API does not provide can_write() method).
