@@ -8,7 +8,7 @@ The clocks keep losing track of time. So I wrote this little utility to update t
 If you feel it is useful and you want to imrove it, please feel free to raise a PR!
 
 The utility goes through a loop every 15 minutes (hard-coded) and does following
-* Discovers all the bluetooth clocks and builds a list of clocks that allow reading (and possibly writing also. The API does not provide can_write() method).
+* Discovers all the bluetooth clocks and builds a list of clocks.
 * Iterates through the list
   * Gets the current time of each clock.
   * If the gap between current time and the obtained time is more than 30 seconds (currently hard-coded), it tries to update the time.
