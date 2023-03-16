@@ -28,11 +28,12 @@ logger.setLevel(logging.DEBUG)
 async def discover_clocks(args, clocks):
     def on_clock_found(clock):
         try:
-            is_readable = clock.is_readable()
-            info = "Found clock: {0} ({1}) - is_readable: {2}".format(clock.name, clock.address, is_readable)
-            logger.info(info)
-            if is_readable:
+            logger.info("Found clock: {0} ({1})".format(clock.name, clock.address))
+            if clock.name.startswith('LYWSD02'):
                 clocks.append(clock)
+                logger.info("Added clock to the list: {0} ({1})".format(clock.name, clock.address))
+            else:
+                logger.info("Not adding clock to the list: {0} ({1})".format(clock.name, clock.address))
         except Exception as e:
             logger.error("Error: ".format(e))
             pass
