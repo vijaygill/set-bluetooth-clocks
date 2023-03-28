@@ -1,8 +1,8 @@
 from python:slim
 
-RUN apt-get update && apt-get upgrade --yes && apt-get install --yes bluez
+RUN apt-get update && apt-get upgrade --yes && apt-get install --yes bluez git
 
-RUN pip install --upgrade --no-cache pip && pip install bluetooth-clocks colorlog
+RUN pip install --upgrade --no-cache pip && pip install colorlog && pip install git+https://github.com/vijaygill/bluetooth-clocks.git
 
 RUN mkdir /app
 
