@@ -7,7 +7,7 @@ The clocks keep losing track of time. So I wrote this little utility to update t
 
 If you feel it is useful and you want to imrove it, please feel free to raise a PR!
 
-The utility goes through a loop every 15 minutes (hard-coded) and does following
+The utility goes through a loop periodically (controller via command-line parameter or environment variable) and does following
 * Discovers all the bluetooth clocks and builds a list of clocks.
 * Iterates through the list
   * Gets the current time of each clock.
@@ -31,4 +31,52 @@ Log of a typical run of loop:
 2023-03-14 18:59:09,578 - Current time: 2023-03-14 18:59:02
 2023-03-14 18:59:09,580 - Difference (7.580225) is less than limit (30). Not updating time now.
 2023-03-14 18:59:09,581 - Main loop finished.
+```
+## Command-line parameters
+```
+usage: set-bluetooth-clocks.py [-h] [--loop-interval LOOP_INTERVAL] [--scan-duration SCAN_DURATION] [--diff-tolerance DIFF_TOLERANCE]
+                               [--attempts-gettime ATTEMPTS_GETTIME] [--attempts-settime ATTEMPTS_SETTIME]
+
+Utility to update date-time on all visible bluetooth clocks
+
+options:
+  -h, --help            show this help message and exit
+  --loop-interval LOOP_INTERVAL
+                        Time between runs of main loop, in seconds. (default: 14400)
+  --scan-duration SCAN_DURATION
+                        Scan duration per clock to listen and wait, in seconds. (default: 120)
+  --diff-tolerance DIFF_TOLERANCE
+                        Maximum difference allowed in current time and clock time before update is performed, in seconds. (default: 30)
+  --attempts-gettime ATTEMPTS_GETTIME
+                        Number of times attempts should be made to read time from clock. (default: 10)
+  --attempts-settime ATTEMPTS_SETTIME
+                        Number of times attempts should be made to set time on the clock. (default: 15)
+```
+
+
+## Docker-compose file
+The environment variables in the docker-compose file follow the command-line parameters. See help on command-line parameters.
+
+```
+services:
+  set-bluetooth-clocks:
+      build:
+          dockerfile : Dockerfile
+          context: .
+      container_name: set-bluetooth-clocks
+      restart: unless-stopped
+      volumes:
+          - /etc/localtime:/etc/localtime:ro
+          - /etc/timezone:/etc/timezone:ro
+          - /tmp/docker/set-bluetooth-clocks/tmp:/tmp
+          - /run/dbus:/run/dbus:ro
+          - /var/lib/bluetooth:/var/lib/bluetooth:ro
+      environment:
+        #- LOOP_INTERVAL=7200
+        - SCAN_DURATION=60
+        #- DIFF_TOLERANCE=30
+        #- ATTEMPTS_GETTIME=10
+        #- ATTEMPTS_SETTIME=15
+      security_opt:
+          - seccomp:unconfined
 ```
