@@ -1,0 +1,27 @@
+from python:slim
+
+RUN apt-get update && apt-get upgrade --yes && apt-get install --yes bluez
+
+RUN pip install --upgrade --no-cache pip && pip install colorlog
+
+#RUN apt-get install --yes git && pip install git+https://github.com/vijaygill/bluetooth-clocks.git
+
+RUN mkdir /bluetooth-clocks
+
+COPY bluetooth-clocks /bluetooth-clocks
+
+RUN apt-get install --yes git
+
+RUN pip install -U setuptools setuptools_scm wheel
+
+RUN pip install /bluetooth-clocks
+
+RUN mkdir /app
+
+COPY app /app
+
+#VOLUME /app
+
+WORKDIR /app
+
+CMD ["./set-bluetooth-clocks.py"]
