@@ -51,6 +51,7 @@ async def update_time(args, clock):
         try:
             timestamp = await clock.get_time()
             time = datetime.fromtimestamp(timestamp)
+            time = datetime.utcfromtimestamp(timestamp)
             logger.info("Current time: {0}".format(time))
             now = datetime.now()
             diff = (now - time).total_seconds()

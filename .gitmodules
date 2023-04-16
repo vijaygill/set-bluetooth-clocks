@@ -1,0 +1,3 @@
+[submodule "bluetooth-clocks"]
+	path = bluetooth-clocks
+	url = https://github.com/vijaygill/bluetooth-clocks.git
