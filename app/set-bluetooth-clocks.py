@@ -29,7 +29,7 @@ async def discover_clocks(args, clocks):
     def on_clock_found(clock):
         try:
             logger.info("Found clock: {0} ({1})".format(clock.name, clock.address))
-            if clock.name.startswith('LYWSD02'):
+            if clock.name.startswith('LYWSD02') or clock.name.startswith('ATC_'):
                 clocks.append(clock)
                 logger.info("Added clock to the list: {0} ({1})".format(clock.name, clock.address))
             else:
