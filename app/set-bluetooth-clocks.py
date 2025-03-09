@@ -25,11 +25,17 @@ handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(asctime)s - %(mes
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
+IGNORE_NAMES=[
+        "ATC_",
+        "LYWSD02"
+        ]
+
 async def discover_clocks(args, clocks):
     def on_clock_found(clock):
         try:
             logger.info("Found clock: {0} ({1})".format(clock.name, clock.address))
-            if clock.name.startswith('LYWSD02') or clock.name.startswith('ATC_1234'):
+            ignore = sum([1 for x in IGNORE_NAMES if x in clock.name]) > 0
+            if not ignore:
                 clocks.append(clock)
                 logger.info("Added clock to the list: {0} ({1})".format(clock.name, clock.address))
             else:
@@ -89,7 +95,7 @@ async def main(args):
             clocks = []
             logger.info("Main loop started.")
             await discover_clocks(args, clocks)
-            await update_times(args,clocks)
+            await update_times(args, clocks)
             next_run_time = datetime.now() + timedelta(seconds = sleep_time_sec)
             logger.info("Main loop finished. Next run will be around: {0} ({1} seconds)".format(next_run_time.strftime("%Y-%m-%d %H:%M:%S"), sleep_time_sec))
             await asyncio.sleep(sleep_time_sec)
